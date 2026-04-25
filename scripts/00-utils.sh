@@ -458,14 +458,6 @@ configure_nautilus_user() {
         local need_modify=0
         local env_vars="env"
         
-        # --- 逻辑 1: Niri 检测 (输入法修复) ---
-        if command -v niri >/dev/null 2>&1; then
-            # 只要有 niri，就强制使用 fcitx 模块
-            env_vars="$env_vars GTK_IM_MODULE=fcitx"
-            need_modify=1
-            log "检测到 Niri 环境，准备注入 GTK_IM_MODULE=fcitx"
-        fi
-        
         # --- 逻辑 2: 双显卡 NVIDIA 检测 (GSK 渲染修复) ---
         local gpu_count=$(lspci | grep -E -i "vga|3d" | wc -l)
         local has_nvidia=$(lspci | grep -E -i "nvidia" | wc -l)
