@@ -4,9 +4,7 @@
 
 // 放进overview里的壁纸程序
 layer-rule{
-    match namespace="hyprpaper"
-    match namespace="wallpaper"
-    match namespace="awww-daemon"
+    match namespace="awww-daemonoverview"
     match namespace="swww-daemonoverview"
      place-within-backdrop true
 }
@@ -82,6 +80,7 @@ window-rule {
     match title="另存为"
     match app-id="better_control.py"
     match app-id="floating-mpv"
+    match app-id="niri-hotkey-menu"
     open-floating true
 }
 // waybar命令中心模块
