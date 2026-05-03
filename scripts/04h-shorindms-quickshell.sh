@@ -113,6 +113,52 @@ configure_nautilus_terminal() {
     fi
 }
 
+configure_brightness_access() {
+    log "Configuring brightness control dependencies and permissions..."
+
+    if getent group i2c >/dev/null 2>&1; then
+        usermod -aG i2c "$TARGET_USER"
+    else
+        warn "Group 'i2c' was not found after installing brightness dependencies."
+    fi
+
+    udevadm control --reload-rules >/dev/null 2>&1 || true
+    udevadm trigger --subsystem-match=i2c-dev >/dev/null 2>&1 || true
+}
+
+install_patched_dms_binary() {
+    local package_version base_version override_dir override_file
+    local builder_script="$SCRIPT_DIR/build-patched-dms.sh"
+
+    if [[ ! -f "$builder_script" ]]; then
+        warn "Patched DMS builder not found: $builder_script"
+        return 0
+    fi
+
+    package_version="$(pacman -Q dms-shell 2>/dev/null | awk '{print $2}')"
+    base_version="${package_version%-*}"
+
+    if [[ -z "$base_version" ]]; then
+        warn "Unable to determine installed dms-shell version for live brightness patch."
+        return 0
+    fi
+
+    log "Building patched DMS binary for live DDC brightness updates..."
+    exe bash "$builder_script" "$base_version" 50 /usr/local/bin/dms
+
+    override_dir="$HOME_DIR/.config/systemd/user/dms.service.d"
+    override_file="$override_dir/override.conf"
+    mkdir -p "$override_dir"
+    cat > "$override_file" <<'EOF'
+[Service]
+ExecStart=
+ExecStart=/usr/local/bin/dms run --session
+EOF
+    chown -R "$TARGET_USER:$TARGET_USER" "$HOME_DIR/.config/systemd"
+
+    as_user systemctl --user daemon-reload >/dev/null 2>&1 || true
+}
+
 configure_chrome_browser_defaults() {
     local desktop_id="com.google.Chrome.desktop"
     local system_desktop="/var/lib/flatpak/exports/share/applications/$desktop_id"
@@ -133,7 +179,7 @@ configure_chrome_browser_defaults() {
 # ==============================================================================
 section "Shorin DMS" "Installing Pre-requisites"
 
-PRE_PKGS="quickshell-git vulkan-headers xdg-desktop-portal-gnome"
+PRE_PKGS="quickshell-git vulkan-headers xdg-desktop-portal-gnome ddcutil i2c-tools brightnessctl go"
 
 log "Generating verify list for pre-requisites..."
 echo "$PRE_PKGS" | tr ' ' '\n' >> "$VERIFY_LIST"
@@ -142,6 +188,8 @@ log "Installing pre-requisites explicitly..."
 if ! as_user "$AUR_HELPER" -S --noconfirm --needed $PRE_PKGS; then
     critical_failure_handler "Failed to install pre-requisites: $PRE_PKGS"
 fi
+
+configure_brightness_access
 
 # ==============================================================================
 # STEP 2: Core Meta Environment
@@ -163,6 +211,8 @@ log "Installing $CORE_PKG environment via AUR..."
 if ! as_user "$AUR_HELPER" -S --noconfirm --needed "$CORE_PKG"; then
     critical_failure_handler "Failed to install $CORE_PKG"
 fi
+
+install_patched_dms_binary
 
 # ==============================================================================
 # STEP 3: Initialize Dotfiles & Environment

@@ -117,7 +117,7 @@ configure_nautilus_user
 
 # --- 7. Tools ---
 section "Minimal Niri" "Tools"
-TOOLS_PKGS=(imv cliphist opencode wl-clipboard cliphist-tui-git shorin-contrib-git hyprlock breeze-cursors nwg-look adw-gtk-theme pavucontrol pulsemixer satty rime-wanxiang-gram-zh-hans)
+TOOLS_PKGS=(imv cliphist opencode wl-clipboard cliphist-tui-git shorin-contrib-git hyprlock breeze-cursors nwg-look adw-gtk-theme pavucontrol pulsemixer satty brightnessctl rime-wanxiang-gram-zh-hans)
 echo "${TOOLS_PKGS[*]}" >> "$VERIFY_LIST"
 exe as_user "$AUR_HELPER" -S --noconfirm --needed "${TOOLS_PKGS[@]}"
 

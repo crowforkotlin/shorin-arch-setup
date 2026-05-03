@@ -77,7 +77,7 @@ log "Installing firmware..."
 exe pacman -S --noconfirm --needed sof-firmware alsa-ucm-conf alsa-firmware
 
 log "Installing Pipewire stack..."
-exe pacman -S --noconfirm --needed pipewire lib32-pipewire wireplumber pipewire-pulse pipewire-alsa pipewire-jack
+exe pacman -S --noconfirm --needed pipewire pipewire-audio lib32-pipewire wireplumber pipewire-pulse pipewire-alsa pipewire-jack alsa-utils ddcutil
 
 exe systemctl --global enable pipewire pipewire-pulse wireplumber
 success "Audio setup complete."
