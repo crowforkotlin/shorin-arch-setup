@@ -7,6 +7,7 @@ gnome-font-viewer                        # manage fonts easily
 fcitx5-mozc                              # Japanese Input Method
 rime-wubi                                # wubi input method
 firefox                                  # the best browser on linux
+ghostty                                  # GPU terminal emulator
 transmission-gtk                         # BitTorrent Client
 localsend                                # send files to other devices
 nm-connection-editor                     # Advanced network editor
@@ -42,4 +43,5 @@ AUR:pins-git			                 # Manage .desktop
 
 # --- Flatpak Packages ---       
 flatpak:com.github.wwmm.easyeffects      # Audio Effects for PipeWire 
+flatpak:com.google.Chrome                # Google Chrome
 flatpak:it.mijorus.gearlever             # AppImage Manager

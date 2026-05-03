@@ -56,6 +56,78 @@ trap 'critical_failure_handler "Script Error at Line $LINENO"' ERR
 
 AUR_HELPER="paru"
 
+apply_shorindms_overrides() {
+    local overrides_dir="$PARENT_DIR/shorindms-overrides"
+
+    if [[ ! -d "$overrides_dir" ]]; then
+        warn "Fork override directory not found: $overrides_dir"
+        return 0
+    fi
+
+    log "Applying fork-managed Shorin DMS overrides..."
+    force_copy "$overrides_dir/." "$HOME_DIR/"
+    chown -R "$TARGET_USER:$TARGET_USER" \
+        "$HOME_DIR/.config/ghostty" \
+        "$HOME_DIR/.config/scripts" \
+        "$HOME_DIR/.config/matugen" 2>/dev/null || true
+}
+
+patch_dms_keybinds() {
+    local binds_file="$HOME_DIR/.config/niri/dms/binds.kdl"
+
+    if [[ ! -f "$binds_file" ]]; then
+        warn "DMS binds file not found: $binds_file"
+        return 0
+    fi
+
+    log "Patching DMS keybinds for Chrome and Ghostty..."
+    sed -i -E \
+        -e 's|^[[:space:]]*Mod\+B[[:space:]].*$|    Mod+B hotkey-overlay-title="浏览器 Browser" { spawn "flatpak" "run" "com.google.Chrome"; }|' \
+        -e 's|^[[:space:]]*Mod\+T[[:space:]].*$|    Mod+T hotkey-overlay-title="共享终端 Terminal" { spawn "ghostty" "--gtk-single-instance=true"; }|' \
+        "$binds_file"
+    chown "$TARGET_USER:$TARGET_USER" "$binds_file"
+}
+
+prioritize_ghostty_terminal() {
+    local terminals_file="$HOME_DIR/.config/xdg-terminals.list"
+    local tmp_file
+
+    log "Prioritizing Ghostty in xdg-terminals.list..."
+    mkdir -p "$HOME_DIR/.config"
+    tmp_file=$(mktemp)
+    {
+        printf '%s\n' 'ghostty.desktop' 'kitty.desktop'
+        if [[ -f "$terminals_file" ]]; then
+            grep -vxF 'ghostty.desktop' "$terminals_file" | grep -vxF 'kitty.desktop' || true
+        fi
+    } > "$tmp_file"
+    install -o "$TARGET_USER" -g "$TARGET_USER" -m 644 "$tmp_file" "$terminals_file"
+    rm -f "$tmp_file"
+}
+
+configure_nautilus_terminal() {
+    if as_user gsettings list-schemas | grep -q '^com.github.stunkymonkey.nautilus-open-any-terminal$'; then
+        log "Configuring Nautilus terminal integration to Ghostty..."
+        sudo -u "$TARGET_USER" dbus-run-session \
+            gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal ghostty
+    fi
+}
+
+configure_chrome_browser_defaults() {
+    local desktop_id="com.google.Chrome.desktop"
+    local system_desktop="/var/lib/flatpak/exports/share/applications/$desktop_id"
+    local user_desktop="$HOME_DIR/.local/share/flatpak/exports/share/applications/$desktop_id"
+
+    if [[ ! -f "$system_desktop" && ! -f "$user_desktop" ]]; then
+        warn "Chrome desktop entry not found, skipping browser default configuration."
+        return 0
+    fi
+
+    log "Setting Chrome as default browser..."
+    as_user xdg-settings set default-web-browser "$desktop_id" || warn "Failed to set xdg-settings browser default."
+    as_user xdg-mime default "$desktop_id" x-scheme-handler/http x-scheme-handler/https text/html || warn "Failed to set xdg-mime browser defaults."
+}
+
 # ==============================================================================
 # STEP 1: Pre-requisites Installation
 # ==============================================================================
@@ -97,6 +169,34 @@ fi
 # ==============================================================================
 log "Initializing User Dotfiles and Environment..."
 exe as_user shorindms init
+
+section "Shorin DMS" "Installing Fork Extras"
+
+EXTRA_PKGS="ghostty nautilus-open-any-terminal xdg-terminal-exec"
+log "Installing fork extra packages..."
+echo "$EXTRA_PKGS" | tr ' ' '\n' >> "$VERIFY_LIST"
+if ! as_user "$AUR_HELPER" -S --noconfirm --needed $EXTRA_PKGS; then
+    critical_failure_handler "Failed to install fork extra packages: $EXTRA_PKGS"
+fi
+
+if flatpak info com.google.Chrome &>/dev/null; then
+    log "Google Chrome already installed, skipping."
+else
+    log "Installing Google Chrome from Flathub..."
+    if ! exe flatpak install -y flathub com.google.Chrome; then
+        critical_failure_handler "Failed to install Google Chrome from Flathub"
+    fi
+fi
+
+apply_shorindms_overrides
+if [[ -f "$HOME_DIR/.config/scripts/matugen-update.sh" ]]; then
+    chmod +x "$HOME_DIR/.config/scripts/matugen-update.sh"
+    chown "$TARGET_USER:$TARGET_USER" "$HOME_DIR/.config/scripts/matugen-update.sh"
+fi
+patch_dms_keybinds
+prioritize_ghostty_terminal
+configure_nautilus_terminal
+configure_chrome_browser_defaults
 
 # ==============================================================================
 # STEP 4: Static Resources

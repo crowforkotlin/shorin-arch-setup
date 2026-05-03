@@ -1,0 +1,47 @@
+# ===
+# === 基本设置
+# ===
+
+# 英文字体(可以使用 CLI 生成有效值列表:ghostty +list-fonts)
+font-family = "JetBrains Maple Mono"
+# 中文字体
+font-family = "LXGW WenKai GB Screen"
+# 字体大小
+font-size = 13.5
+# 自动复制选中文本到系统剪切板
+copy-on-select = clipboard
+# 输入文本时隐藏鼠标
+mouse-hide-while-typing = true
+# 确认关闭窗口时不显示确认提示
+confirm-close-surface = false
+# 文字霓虹和光标轨迹特效相关文件
+# custom-shader = "~/.config/ghostty/shaders/neon_text.glsl"
+# 保留 GLSL 动效，并让 Ghostty 在失焦时继续驱动 shader 动画循环，
+# 避免切到其他窗口时把动效停在半帧。
+custom-shader-animation = always
+custom-shader = "~/.config/ghostty/shaders/cursor_smear.glsl"
+custom-shader = "~/.config/ghostty/shaders/cursor_pulse.glsl"
+
+# ===
+# === 主题
+# ===
+
+theme = dankcolors
+background-opacity = 0.8
+background-blur = false
+# 让终端内容离窗口边缘更远一点，左侧略大，避免 prompt 图标贴边
+window-padding-x = 5
+window-padding-y = 5
+window-decoration = false
+cursor-style = block
+cursor-style-blink = true
+
+# ===
+# === 按键绑定
+# ===
+
+# 上下翻页
+keybind = ctrl+j=scroll_page_up
+keybind = ctrl+k=scroll_page_down
+
+keybind = ctrl+v=paste_from_clipboard
