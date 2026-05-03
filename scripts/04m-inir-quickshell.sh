@@ -157,9 +157,37 @@ section "Config" "screenshare"
 
 echo "xdg-desktop-portal-gnome" >> "$VERIFY_LIST"
 exe pacman -S --noconfirm --needed xdg-desktop-portal-gnome
-if ! grep -q '/usr/lib/xdg-desktop-portal-gnome' "$INIR_AUTOSTART_CONFIG"; then
-    log "Configuring environment in niri config.kdl"
-    echo 'spawn-sh-at-startup "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=niri & /usr/lib/xdg-desktop-portal-gnome"' >> "$DMS_NIRI_CONFIG_FILE"
+INIR_PORTAL_FIX_SCRIPT="$HOME_DIR/.config/niri/scripts/portal-session-fix.sh"
+as_user mkdir -p "$(dirname "$INIR_PORTAL_FIX_SCRIPT")"
+cat <<'EOF' > "$INIR_PORTAL_FIX_SCRIPT"
+#!/usr/bin/env bash
+set -euo pipefail
+
+export XDG_CURRENT_DESKTOP="${XDG_CURRENT_DESKTOP:-niri}"
+export XDG_SESSION_TYPE="${XDG_SESSION_TYPE:-wayland}"
+
+dbus-update-activation-environment --systemd \
+    DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE \
+    XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS
+
+systemctl --user import-environment \
+    DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE \
+    XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS
+
+systemctl --user restart \
+    xdg-desktop-portal xdg-desktop-portal-gnome xdg-desktop-portal-gtk
+EOF
+chmod 755 "$INIR_PORTAL_FIX_SCRIPT"
+chown "$TARGET_USER:" "$INIR_PORTAL_FIX_SCRIPT"
+
+if grep -q 'spawn-sh-at-startup "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=niri & /usr/lib/xdg-desktop-portal-gnome"' "$INIR_AUTOSTART_CONFIG"; then
+    log "Replacing legacy portal workaround in iNiR startup config..."
+    sed -i 's|^[[:space:]]*spawn-sh-at-startup "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=niri & /usr/lib/xdg-desktop-portal-gnome"|spawn-sh-at-startup "~/.config/niri/scripts/portal-session-fix.sh"|' "$INIR_AUTOSTART_CONFIG"
+elif ! grep -q 'spawn-sh-at-startup "~/.config/niri/scripts/portal-session-fix.sh"' "$INIR_AUTOSTART_CONFIG"; then
+    log "Configuring portal environment sync in iNiR startup config..."
+    echo 'spawn-sh-at-startup "~/.config/niri/scripts/portal-session-fix.sh"' >> "$INIR_AUTOSTART_CONFIG"
+else
+    log "Portal environment sync already exists in iNiR startup config, skipping."
 fi
 
 run_hide_desktop_file

@@ -31,7 +31,8 @@ environment {
     // GTK软件使用的渲染器，可以解决n卡双显卡导致的GTK应用启动缓慢问题，AMD或Intel单显卡不需要这行设置可以注释掉
     GSK_RENDERER "gl"
     // 默认文本编辑器
-    EDITOR "vim"
+    EDITOR "nvim"
+    VISUAL "nvim"
     
 }
 
@@ -172,8 +173,10 @@ overview {
 
 // 询问管理员权限功能（身份验证）
 spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
-// 屏幕分享、录屏相关的环境设置,如果屏幕分享出异常的话可以开启
- spawn-sh-at-startup "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=niri & /usr/lib/xdg-desktop-portal-gnome"
+// 开机自动进入锁屏
+// spawn-sh-at-startup "~/.config/niri/scripts/portal-session-fix.sh"
+// 屏幕分享、录屏相关的环境设置
+spawn-sh-at-startup "~/.config/niri/scripts/portal-session-fix.sh"
 // GNOME tracker修复
 spawn-sh-at-startup "systemctl --user set-environment XDG_SESSION_CLASS=user"
 spawn-at-startup "foot" "-s"
@@ -205,8 +208,6 @@ hotkey-overlay {
 
 // 隐藏窗口标题栏
 prefer-no-csd
-
-
 
 
 

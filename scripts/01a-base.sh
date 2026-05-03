@@ -40,7 +40,12 @@ else
     # For simplicity in logging, we just run it and log success
     echo "EDITOR=${TARGET_EDITOR}" >> /etc/environment
 fi
-success "Global EDITOR set to: ${TARGET_EDITOR}"
+if grep -q "^VISUAL=" /etc/environment; then
+    exe sed -i "s/^VISUAL=.*/VISUAL=${TARGET_EDITOR}/" /etc/environment
+else
+    echo "VISUAL=${TARGET_EDITOR}" >> /etc/environment
+fi
+success "Global EDITOR/VISUAL set to: ${TARGET_EDITOR}"
 
 # ------------------------------------------------------------------------------
 # 2. Enable 32-bit (multilib) Repository
