@@ -53,19 +53,4 @@ else
     warn "chwd encountered an error. Please check pacman logs."
 fi
 
-# ==============================================================================
-# 4. 启用服务
-# ==============================================================================
-log "Enabling services (if supported)..."
-# 注意：有些服务可能因为硬件不支持而没安装，这里用 || true 防止脚本中断
-systemctl enable switcheroo-control.service &>/dev/null || true
-
-# Nvidia 特有服务 (如果系统里存在 nvidia 相关文件才执行)
-if lsmod | grep -q nvidia || lspci | grep -i nvidia -q; then
-    systemctl enable --now nvidia-powerd &>/dev/null || true
-    systemctl enable nvidia-suspend.service &>/dev/null || true
-    systemctl enable nvidia-hibernate.service &>/dev/null || true
-    systemctl enable nvidia-resume.service &>/dev/null || true
-fi
-
 log "Module 03b completed."
