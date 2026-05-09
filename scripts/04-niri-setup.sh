@@ -37,6 +37,17 @@ section "Step 1/3" "Install Environment & Dotfiles"
 
 AUR_HELPER="paru"
 CORE_PKG="shorin-niri-git"
+PRE_PKGS="xdg-desktop-portal-gnome"
+
+log "Generating verify list for pre-requisites..."
+echo "$PRE_PKGS" | tr ' ' '\n' >> "$VERIFY_LIST"
+
+log "Installing pre-requisites explicitly..."
+if ! as_user "$AUR_HELPER" -S --noconfirm --needed $PRE_PKGS; then
+    critical_failure_handler "Failed to install pre-requisites: $PRE_PKGS"
+fi
+
+
 
 # --- 在安装发生【之前】动态提取依赖写入 VERIFY_LIST ---
 log "Fetching dependency list from AUR for verification..."
