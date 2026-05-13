@@ -68,6 +68,7 @@ apply_shorindms_overrides() {
     force_copy "$overrides_dir/." "$HOME_DIR/"
     chown -R "$TARGET_USER:$TARGET_USER" \
         "$HOME_DIR/.config/ghostty" \
+        "$HOME_DIR/.config/niri/scripts" \
         "$HOME_DIR/.config/scripts" \
         "$HOME_DIR/.config/matugen" 2>/dev/null || true
 }
@@ -80,10 +81,12 @@ patch_dms_keybinds() {
         return 0
     fi
 
-    log "Patching DMS keybinds for Chrome and Ghostty..."
+    log "Patching DMS keybinds with DMS-safe launcher scripts..."
     sed -i -E \
         -e 's|^[[:space:]]*Mod\+B[[:space:]].*$|    Mod+B hotkey-overlay-title="浏览器 Browser" { spawn "flatpak" "run" "com.google.Chrome"; }|' \
-        -e 's|^[[:space:]]*Mod\+T[[:space:]].*$|    Mod+T hotkey-overlay-title="共享终端 Terminal" { spawn "ghostty" "--gtk-single-instance=true"; }|' \
+        -e 's|^[[:space:]]*Mod\+T[[:space:]].*$|    Mod+T hotkey-overlay-title="共享终端 Terminal" { spawn "~/.config/niri/scripts/open-ghostty-shared.sh"; }|' \
+        -e 's|^[[:space:]]*Mod\+E[[:space:]].*$|    Mod+E hotkey-overlay-title="文档管理器 Filemanager" { spawn "~/.config/niri/scripts/open-filemanager.sh"; }|' \
+        -e 's|^[[:space:]]*Mod\+Alt\+E[[:space:]].*$|    Mod+Alt+E hotkey-overlay-title=null {spawn "~/.config/niri/scripts/open-nautilus-gl.sh";}|' \
         "$binds_file"
     chown "$TARGET_USER:$TARGET_USER" "$binds_file"
 }
