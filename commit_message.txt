@@ -1,0 +1,61 @@
+diff --git a/scripts/04c-dms-quickshell.sh b/scripts/04c-dms-quickshell.sh
+index 3dcbf70..fd15dee 100755
+--- a/scripts/04c-dms-quickshell.sh
++++ b/scripts/04c-dms-quickshell.sh
+@@ -92,7 +92,21 @@ if [[ "$DMS_NIRI_INSTALLED" == "true" ]]; then
+     else
+         log "DMS autostart already exists in niri config.kdl, skipping."
+     fi
+-    
++    DMS_NIRI_WALLPAPER_REFRESH_SCRIPT="$HOME_DIR/.config/niri/scripts/dms-wallpaper-refresh-at-login.sh"
++    install -Dm755 "$SCRIPT_DIR/dms-wallpaper-refresh-at-login.sh" "$DMS_NIRI_WALLPAPER_REFRESH_SCRIPT"
++    chown "$TARGET_USER:" "$DMS_NIRI_WALLPAPER_REFRESH_SCRIPT"
++
++    if ! grep -q 'spawn-sh-at-startup "~/.config/niri/scripts/dms-wallpaper-refresh-at-login.sh"' "$DMS_NIRI_CONFIG_FILE"; then
++        log "Configuring DMS wallpaper refresh in niri config.kdl..."
++        if grep -E -q "^[[:space:]]*spawn-at-startup.*dms.*run" "$DMS_NIRI_CONFIG_FILE"; then
++            sed -i '/^[[:space:]]*spawn-at-startup.*dms.*run/a spawn-sh-at-startup "~/.config/niri/scripts/dms-wallpaper-refresh-at-login.sh"' "$DMS_NIRI_CONFIG_FILE"
++        else
++            echo 'spawn-sh-at-startup "~/.config/niri/scripts/dms-wallpaper-refresh-at-login.sh"' >> "$DMS_NIRI_CONFIG_FILE"
++        fi
++    else
++        log "DMS wallpaper refresh already exists in niri config.kdl, skipping."
++    fi
++
+     elif [[ "$DMS_HYPR_INSTALLED" == "true" ]]; then
+     log "Configuring Hyprland autostart..."
+     if ! grep -q "exec-once.*dms run" "$DMS_HYPR_CONFIG_FILE"; then
+diff --git a/scripts/dms-wallpaper-refresh-at-login.sh b/scripts/dms-wallpaper-refresh-at-login.sh
+new file mode 100755
+index 0000000..89241be
+--- /dev/null
++++ b/scripts/dms-wallpaper-refresh-at-login.sh
+@@ -0,0 +1,20 @@
++#!/usr/bin/env bash
++set -euo pipefail
++
++for _ in $(seq 1 60); do
++  if wp="$(dms ipc call wallpaper get 2>/dev/null)"; then
++    case "$wp" in
++      ""|\#*)
++        exit 0
++        ;;
++      /*)
++        dms ipc call wallpaper set "$wp" >/dev/null
++        exit 0
++        ;;
++    esac
++  fi
++
++  sleep 0.5
++done
++
++exit 1
+---
+位于分支 main
+您的分支与上游分支 'origin/main' 一致。
+
+要提交的变更：
+  （使用 "git restore --staged <文件>..." 以取消暂存）
+	修改：     scripts/04c-dms-quickshell.sh
+	新文件：   scripts/dms-wallpaper-refresh-at-login.sh

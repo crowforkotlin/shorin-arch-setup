@@ -92,7 +92,21 @@ if [[ "$DMS_NIRI_INSTALLED" == "true" ]]; then
     else
         log "DMS autostart already exists in niri config.kdl, skipping."
     fi
-    
+    DMS_NIRI_WALLPAPER_REFRESH_SCRIPT="$HOME_DIR/.config/niri/scripts/dms-wallpaper-refresh-at-login.sh"
+    install -Dm755 "$SCRIPT_DIR/dms-wallpaper-refresh-at-login.sh" "$DMS_NIRI_WALLPAPER_REFRESH_SCRIPT"
+    chown "$TARGET_USER:" "$DMS_NIRI_WALLPAPER_REFRESH_SCRIPT"
+
+    if ! grep -q 'spawn-sh-at-startup "~/.config/niri/scripts/dms-wallpaper-refresh-at-login.sh"' "$DMS_NIRI_CONFIG_FILE"; then
+        log "Configuring DMS wallpaper refresh in niri config.kdl..."
+        if grep -E -q "^[[:space:]]*spawn-at-startup.*dms.*run" "$DMS_NIRI_CONFIG_FILE"; then
+            sed -i '/^[[:space:]]*spawn-at-startup.*dms.*run/a spawn-sh-at-startup "~/.config/niri/scripts/dms-wallpaper-refresh-at-login.sh"' "$DMS_NIRI_CONFIG_FILE"
+        else
+            echo 'spawn-sh-at-startup "~/.config/niri/scripts/dms-wallpaper-refresh-at-login.sh"' >> "$DMS_NIRI_CONFIG_FILE"
+        fi
+    else
+        log "DMS wallpaper refresh already exists in niri config.kdl, skipping."
+    fi
+
     elif [[ "$DMS_HYPR_INSTALLED" == "true" ]]; then
     log "Configuring Hyprland autostart..."
     if ! grep -q "exec-once.*dms run" "$DMS_HYPR_CONFIG_FILE"; then
