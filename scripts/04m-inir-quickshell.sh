@@ -102,7 +102,8 @@ fi
 # ==============================================================================
 section "Config" "input method"
 
-as_user paru -S --noconfirm --needed rime-wanxiang-gram-zh-hans
+echo "rime-wanxiang-gram-zh-hans fcitx5-skin-ori-git" >> "$VERIFY_LIST"
+as_user paru -S --noconfirm --needed rime-wanxiang-gram-zh-hans fcitx5-skin-ori-git
 
 if ! grep -q "fcitx5" "$INIR_AUTOSTART_CONFIG"; then
     log "Enabling fcitx5 autostart in niri config.kdl..."

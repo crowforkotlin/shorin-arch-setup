@@ -123,6 +123,10 @@ fi
 # ==============================================================================
 section "Config" "input method"
 
+IME_THEME_PKGS="fcitx5-skin-ori-git"
+echo "$IME_THEME_PKGS" >> "$VERIFY_LIST"
+exe as_user paru -S --noconfirm --needed $IME_THEME_PKGS
+
 if [[ "$DMS_NIRI_INSTALLED" == "true" ]]; then
     if ! grep -q "fcitx5" "$DMS_NIRI_CONFIG_FILE"; then
         log "Enabling fcitx5 autostart in niri config.kdl..."

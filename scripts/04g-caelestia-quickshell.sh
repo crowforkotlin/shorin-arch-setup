@@ -93,6 +93,8 @@ if [ -f "$HYPR_CONFIG" ]; then
         as_user cp -rf "$PARENT_DIR/quickshell-dotfiles/." "$HOME_DIR/"
         
     fi
+
+    exe yay -S --needed --noconfirm fcitx5-skin-ori-git
     
     # 5.2 Chinese Locale Check
     # Fix: Ensure grep reads from input correctly

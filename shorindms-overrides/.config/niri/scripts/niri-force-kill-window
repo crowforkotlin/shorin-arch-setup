@@ -44,7 +44,7 @@ if [[ "${LANG}" == zh_* ]]; then
     STR_ERR_PROTECTED_MSG="禁止强制结束桌面核心组件: %s"
     STR_ERR_KILL_TITLE="结束失败"
     STR_ERR_KILL_MSG="无法提取目标真实 PID。"
-    
+
     STR_SUCC_TITLE="强制结束 (%s)"
     STR_SUCC_MSG_SINGLE="应用: %s\n已终止目标窗口进程 (PID: %s)。"
     STR_SUCC_MSG_FAMILY="应用: %s\n进程树已清理: 成功终止 %s 个相关进程。"
@@ -71,7 +71,7 @@ Options:
     STR_ERR_PROTECTED_MSG="Refusing to kill protected desktop component: %s"
     STR_ERR_KILL_TITLE="Kill Failed"
     STR_ERR_KILL_MSG="Could not extract target real PID."
-    
+
     STR_SUCC_TITLE="Force Killed (%s)"
     STR_SUCC_MSG_SINGLE="App: %s\nTarget window process (PID: %s) terminated."
     STR_SUCC_MSG_FAMILY="App: %s\nProcess tree cleaned: %s processes terminated."
@@ -193,14 +193,14 @@ if [[ "$KILL_FAMILY" == true ]]; then
     pid_count=$(echo "$family_pids" | wc -w)
 
     kill -9 $family_pids 2>/dev/null
-    
+
     printf -v final_title "$STR_SUCC_TITLE" "$proto_str"
     printf -v final_msg "$STR_SUCC_MSG_FAMILY" "$app_name" "$pid_count"
 
 else
     # --- 单一窗口进程精准击杀模式 (默认) ---
     kill -9 "$real_pid" 2>/dev/null
-    
+
     printf -v final_title "$STR_SUCC_TITLE" "$proto_str"
     printf -v final_msg "$STR_SUCC_MSG_SINGLE" "$app_name" "$real_pid"
 fi

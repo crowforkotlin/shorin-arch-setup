@@ -388,6 +388,9 @@ else
     warn "Folder 'kde-dotfiles' not found in repo. Skipping config."
 fi
 
+echo "fcitx5-skin-ori-git" >> "$VERIFY_LIST"
+exe runuser -u "$TARGET_USER" -- yay -S --noconfirm --needed --answerdiff=None --answerclean=None fcitx5-skin-ori-git
+
 # ------------------------------------------------------------------------------
 # 4.5 Deploy Resource Files (README)
 # ------------------------------------------------------------------------------

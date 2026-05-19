@@ -207,7 +207,7 @@ EOF
 section "Step 5" "Install Extensions"
 log "Installing Extensions CLI..."
 
-EXT_CLI_PKGS="gnome-extensions-cli ttf-jetbrains-maple-mono-nf-xx-xx rime-wanxiang-gram-zh-hans"
+EXT_CLI_PKGS="gnome-extensions-cli ttf-jetbrains-maple-mono-nf-xx-xx rime-wanxiang-gram-zh-hans fcitx5-skin-ori-git"
 echo "$EXT_CLI_PKGS" >> "$VERIFY_LIST"
 sudo -u $TARGET_USER yay -S --noconfirm --needed --answerdiff=None --answerclean=None $EXT_CLI_PKGS
 

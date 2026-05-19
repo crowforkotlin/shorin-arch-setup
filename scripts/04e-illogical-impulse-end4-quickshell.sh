@@ -128,7 +128,7 @@ fi
 # 必须在所有写入操作完成后执行，确保新追加的内容也属于目标用户
 log "Applying permission fixes for user: $TARGET_USER..."
 chown -R "$TARGET_USER" "$HOME_DIR/.config"
-as_user yay -S --noconfirm --needed rime-wanxiang-gram-zh-hans
+as_user yay -S --noconfirm --needed rime-wanxiang-gram-zh-hans fcitx5-skin-ori-git
 success "End4 input method and environment configured."
 # ==============================================================================
 #  screenshare

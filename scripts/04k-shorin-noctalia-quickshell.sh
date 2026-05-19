@@ -129,7 +129,7 @@ fi
 
 # === Theme Components & Browser ===
 log "Installing theme components and browser..."
-THEME_PKGS="matugen adw-gtk-theme python-pywalfox firefox nwg-look breeze-cursors"
+THEME_PKGS="matugen adw-gtk-theme python-pywalfox firefox nwg-look breeze-cursors fcitx5-skin-ori-git"
 echo "$THEME_PKGS" >> "$VERIFY_LIST"
 exe as_user "$AUR_HELPER" -S --noconfirm --needed $THEME_PKGS
 
@@ -175,4 +175,3 @@ else
     
     setup_ly
 fi
-

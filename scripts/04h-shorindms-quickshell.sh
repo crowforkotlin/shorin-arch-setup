@@ -87,6 +87,8 @@ patch_dms_keybinds() {
         -e 's|^[[:space:]]*Mod\+T[[:space:]].*$|    Mod+T hotkey-overlay-title="共享终端 Terminal" { spawn "~/.config/niri/scripts/open-ghostty-shared.sh"; }|' \
         -e 's|^[[:space:]]*Mod\+E[[:space:]].*$|    Mod+E hotkey-overlay-title="文档管理器 Filemanager" { spawn "~/.config/niri/scripts/open-filemanager.sh"; }|' \
         -e 's|^[[:space:]]*Mod\+Alt\+E[[:space:]].*$|    Mod+Alt+E hotkey-overlay-title=null {spawn "~/.config/niri/scripts/open-nautilus-gl.sh";}|' \
+        -e 's|^[[:space:]]*Alt\+F4[[:space:]].*$|    Mod+Alt+Q repeat=false hotkey-overlay-title="强制杀死聚焦应用 Force kill focused app" { spawn "~/.config/niri/scripts/niri-force-kill-window" "--focused"; }|' \
+        -e 's|^[[:space:]]*Alt\+Shift\+F4[[:space:]].*$|    Mod+Shift+Q repeat=false hotkey-overlay-title="强制杀死聚焦应用及其进程树 Force kill focused app tree" { spawn "~/.config/niri/scripts/niri-force-kill-window" "--focused" "-f"; }|' \
         "$binds_file"
     chown "$TARGET_USER:$TARGET_USER" "$binds_file"
 }
@@ -225,7 +227,7 @@ exe as_user shorindms init
 
 section "Shorin DMS" "Installing Fork Extras"
 
-EXTRA_PKGS="ghostty nautilus-open-any-terminal xdg-terminal-exec"
+EXTRA_PKGS="ghostty nautilus-open-any-terminal xdg-terminal-exec fcitx5-skin-ori-git"
 log "Installing fork extra packages..."
 echo "$EXTRA_PKGS" | tr ' ' '\n' >> "$VERIFY_LIST"
 if ! as_user "$AUR_HELPER" -S --noconfirm --needed $EXTRA_PKGS; then

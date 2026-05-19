@@ -38,8 +38,8 @@ binds {
     Mod+G repeat=false { toggle-overview; }
     // 关闭聚焦窗口
     Mod+Q hotkey-overlay-title="关闭聚焦窗口 Close focus window" repeat=false { close-window; }
-    Alt+F4  hotkey-overlay-title="强制杀死窗口 Force kill -9 window" repeat=false { spawn "~/.config/niri/scripts/niri-force-kill-window"; }
-    Alt+Shift+F4  hotkey-overlay-title="强制杀死窗口以及关联进程 Force kill -9 a window tree" repeat=false { spawn "~/.config/niri/scripts/niri-force-kill-window" "-f"; }
+    Mod+Alt+Q  hotkey-overlay-title="强制杀死聚焦应用 Force kill focused app" repeat=false { spawn "~/.config/niri/scripts/niri-force-kill-window" "--focused"; }
+    Mod+Shift+Q  hotkey-overlay-title="强制杀死聚焦应用及其进程树 Force kill focused app tree" repeat=false { spawn "~/.config/niri/scripts/niri-force-kill-window" "--focused" "-f"; }
 
     // niri-sidebar扩展相关
     // 警告：这是实验性功能
