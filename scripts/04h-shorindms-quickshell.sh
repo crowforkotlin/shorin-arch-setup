@@ -68,34 +68,10 @@ apply_shorindms_overrides() {
     force_copy "$overrides_dir/." "$HOME_DIR/"
     chown -R "$TARGET_USER:$TARGET_USER" \
         "$HOME_DIR/.config/ghostty" \
+        "$HOME_DIR/.config/quickshell" \
         "$HOME_DIR/.config/niri/scripts" \
         "$HOME_DIR/.config/scripts" \
         "$HOME_DIR/.config/matugen" 2>/dev/null || true
-}
-
-configure_dms_wallpaper_refresh() {
-    local config_file="$HOME_DIR/.config/niri/config.kdl"
-    local refresh_script="$HOME_DIR/.config/niri/scripts/dms-wallpaper-refresh-at-login.sh"
-
-    if [[ ! -f "$config_file" ]]; then
-        warn "DMS niri config not found: $config_file"
-        return 0
-    fi
-
-    install -Dm755 "$SCRIPT_DIR/dms-wallpaper-refresh-at-login.sh" "$refresh_script"
-    chown "$TARGET_USER:$TARGET_USER" "$refresh_script"
-
-    if ! grep -q 'spawn-sh-at-startup "~/.config/niri/scripts/dms-wallpaper-refresh-at-login.sh"' "$config_file"; then
-        log "Configuring DMS wallpaper refresh in niri config.kdl..."
-        if grep -E -q '^[[:space:]]*spawn-at-startup.*dms.*run' "$config_file"; then
-            sed -i '/^[[:space:]]*spawn-at-startup.*dms.*run/a spawn-sh-at-startup "~/.config/niri/scripts/dms-wallpaper-refresh-at-login.sh"' "$config_file"
-        else
-            echo 'spawn-sh-at-startup "~/.config/niri/scripts/dms-wallpaper-refresh-at-login.sh"' >> "$config_file"
-        fi
-        chown "$TARGET_USER:$TARGET_USER" "$config_file"
-    else
-        log "DMS wallpaper refresh already exists in niri config.kdl, skipping."
-    fi
 }
 
 patch_dms_keybinds() {
@@ -249,7 +225,6 @@ install_patched_dms_binary
 # ==============================================================================
 log "Initializing User Dotfiles and Environment..."
 exe as_user shorindms init
-configure_dms_wallpaper_refresh
 
 section "Shorin DMS" "Installing Fork Extras"
 
