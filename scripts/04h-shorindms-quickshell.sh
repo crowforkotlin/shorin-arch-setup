@@ -119,6 +119,31 @@ configure_nautilus_terminal() {
     fi
 }
 
+configure_file_manager_defaults() {
+    local desktop_id="thunar.desktop"
+
+    if ! command -v thunar >/dev/null 2>&1; then
+        warn "Thunar is not installed, skipping file manager default configuration."
+        return 0
+    fi
+
+    log "Setting Thunar as default file manager..."
+    as_user xdg-mime default "$desktop_id" inode/directory || warn "Failed to set xdg-mime directory default."
+}
+
+disable_dms_lock_at_login() {
+    local niri_config="$HOME_DIR/.config/niri/config.kdl"
+
+    if [[ ! -f "$niri_config" ]]; then
+        warn "Niri config not found: $niri_config"
+        return 0
+    fi
+
+    log "Disabling DMS lock-at-login startup script..."
+    sed -i 's|^[[:space:]]*spawn-sh-at-startup "~/.config/niri/scripts/dms-lock-at-login.sh"|// spawn-sh-at-startup "~/.config/niri/scripts/dms-lock-at-login.sh"|' "$niri_config"
+    chown "$TARGET_USER:$TARGET_USER" "$niri_config"
+}
+
 configure_brightness_access() {
     log "Configuring brightness control dependencies and permissions..."
 
@@ -250,9 +275,11 @@ if [[ -f "$HOME_DIR/.config/scripts/matugen-update.sh" ]]; then
     chown "$TARGET_USER:$TARGET_USER" "$HOME_DIR/.config/scripts/matugen-update.sh"
 fi
 patch_dms_keybinds
+disable_dms_lock_at_login
 prioritize_ghostty_terminal
 configure_nautilus_terminal
 configure_chrome_browser_defaults
+configure_file_manager_defaults
 
 # ==============================================================================
 # STEP 4: Static Resources

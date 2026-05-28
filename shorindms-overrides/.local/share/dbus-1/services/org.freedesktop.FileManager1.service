@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=org.freedesktop.FileManager1
+Exec=/usr/bin/env shorin-thunar --gapplication-service
+SystemdService=thunar.service

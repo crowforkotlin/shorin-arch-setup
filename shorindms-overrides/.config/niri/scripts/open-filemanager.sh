@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if command -v thunar >/dev/null 2>&1; then
-    exec thunar "$@"
+    exec shorin-thunar "$@"
 fi
 
 exec "$HOME/.config/niri/scripts/open-nautilus-gl.sh" "$@"
